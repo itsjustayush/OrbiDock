@@ -3,10 +3,12 @@ export type DockState = 'hidden' | 'preview' | 'opening' | 'open' | 'closing';
 export type TabType = 
   | 'dashboard' 
   | 'media' 
+  | 'shelf'
   | 'performance' 
   | 'weather' 
   | 'calendar' 
   | 'clipboard' 
+  | 'ecoinvoice'
   | 'settings';
 
 export interface SystemMetrics {

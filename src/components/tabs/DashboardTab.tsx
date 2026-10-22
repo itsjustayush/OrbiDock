@@ -5,18 +5,21 @@ import { WeatherCard } from '../cards/WeatherCard';
 import { CalendarTimerCard } from '../cards/CalendarTimerCard';
 import { ClipboardCard } from '../cards/ClipboardCard';
 import { QuickAlertsCard } from '../cards/QuickAlertsCard';
+import { EcoFootprintCard } from '../cards/EcoFootprintCard';
 import type { SystemMetrics, ClipboardData } from '../../types';
 
 interface DashboardTabProps {
   metrics: SystemMetrics;
   clipboard: ClipboardData;
   onClipboardAction: (action: string, text: string) => void;
+  onOpenEcoInvoice?: () => void;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
   metrics,
   clipboard,
   onClipboardAction,
+  onOpenEcoInvoice,
 }) => {
   return (
     <div className="grid grid-cols-2 gap-3.5 w-full">
@@ -31,6 +34,11 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
       {/* Row 3: Clipboard Assistant & Dynamic Alerts */}
       <ClipboardCard clipboard={clipboard} onAction={onClipboardAction} />
       <QuickAlertsCard />
+
+      {/* Row 4: Ecological Footprint & Work Energy */}
+      <div className="col-span-2">
+        <EcoFootprintCard metrics={metrics} onOpenInvoice={onOpenEcoInvoice} />
+      </div>
     </div>
   );
 };

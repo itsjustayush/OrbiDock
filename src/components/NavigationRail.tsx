@@ -3,10 +3,12 @@ import { motion } from 'framer-motion';
 import {
   LayoutGrid,
   Music2,
+  UploadCloud,
   Activity,
   CloudSun,
   CalendarCheck2,
   ClipboardList,
+  Leaf,
   Settings,
 } from 'lucide-react';
 import type { TabType } from '../types';
@@ -22,11 +24,13 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
 }) => {
   const tabs: Array<{ id: TabType; label: string; icon: React.ReactNode }> = [
     { id: 'dashboard', label: 'Overview', icon: <LayoutGrid className="w-4 h-4" /> },
-    { id: 'media', label: 'Music', icon: <Music2 className="w-4 h-4" /> },
+    { id: 'media', label: 'Music & Lyrics', icon: <Music2 className="w-4 h-4" /> },
+    { id: 'shelf', label: 'File Shelf', icon: <UploadCloud className="w-4 h-4" /> },
     { id: 'performance', label: 'Hardware', icon: <Activity className="w-4 h-4" /> },
     { id: 'weather', label: 'Weather', icon: <CloudSun className="w-4 h-4" /> },
     { id: 'calendar', label: 'Focus & Tasks', icon: <CalendarCheck2 className="w-4 h-4" /> },
     { id: 'clipboard', label: 'Clipboard', icon: <ClipboardList className="w-4 h-4" /> },
+    { id: 'ecoinvoice', label: 'Eco Invoice', icon: <Leaf className="w-4 h-4" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
   ];
 
