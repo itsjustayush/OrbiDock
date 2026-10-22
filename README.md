@@ -108,11 +108,32 @@ Every push to `main` triggers `.github/workflows/release.yml`, which automatical
 
 ---
 
+---
+
+## 🎯 1-Click Installation for Users (Zero Coding Required)
+
+OrbiDock is designed for everyone—you do **NOT** need to know how to code, install programming languages, or open terminal windows:
+
+1. Go to the **Releases** tab of this GitHub repository.
+2. Download **`Orbidock_0.1.0_x64-setup.exe`**.
+3. Double-click the file to install:
+   - **No Administrator Password (UAC) needed**: Installs cleanly for your current Windows user profile.
+   - **Auto-starts on PC boot**: The notch will automatically be ready at the top of your screen every time you turn on your computer.
+   - **Runs quietly**: Sits next to your Windows clock in the system tray with zero taskbar clutter.
+
+### Installing the Browser Companion (Chrome / Edge)
+1. Open your browser and go to `chrome://extensions` (or `edge://extensions`).
+2. Turn on **Developer mode** (top right switch).
+3. Click **Load unpacked** and select the `extension` folder from OrbiDock.
+4. Click **Details** and enable **Allow in Incognito** so your focus agenda protection works everywhere.
+
+---
+
 ## ⌨️ Shortcuts & Controls
 
 | Shortcut / Action | Function |
 |---|---|
-| `Ctrl + Space` | Toggle Orbidock open / closed |
+| `Ctrl + Space` | Toggle OrbiDock open / closed |
 | `Esc` | Collapse unfolded drawer back to pill |
 | Top-edge hover (120ms) | Trigger preview and unfold drawer |
 | Cursor leave (400ms) | Auto-collapse drawer when user moves away |
@@ -120,5 +141,5 @@ Every push to `main` triggers `.github/workflows/release.yml`, which automatical
 
 ---
 
-## 📄 License
-MIT © OrbiDock Contributors
+## 📄 License & Attributions
+This software is provided under open-source terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for licenses and copyright notices of V-Notch (Apache-2.0), bloom (GPL-3.0), and L4-Windows-NotchBar (GPL-3.0).
