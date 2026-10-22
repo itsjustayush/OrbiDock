@@ -1,11 +1,9 @@
 import React from 'react';
 import { MediaCard } from '../cards/MediaCard';
 import { PerformanceCard } from '../cards/PerformanceCard';
-import { WeatherCard } from '../cards/WeatherCard';
-import { CalendarTimerCard } from '../cards/CalendarTimerCard';
 import { ClipboardCard } from '../cards/ClipboardCard';
+import { CalendarTimerCard } from '../cards/CalendarTimerCard';
 import { QuickAlertsCard } from '../cards/QuickAlertsCard';
-import { EcoFootprintCard } from '../cards/EcoFootprintCard';
 import type { SystemMetrics, ClipboardData } from '../../types';
 
 interface DashboardTabProps {
@@ -13,31 +11,29 @@ interface DashboardTabProps {
   clipboard: ClipboardData;
   onClipboardAction: (action: string, text: string) => void;
   onOpenEcoInvoice?: () => void;
+  currentSong?: string;
+  isMediaPlaying?: boolean;
+  onTogglePlay?: () => void;
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
   metrics,
   clipboard,
   onClipboardAction,
-  onOpenEcoInvoice,
 }) => {
   return (
-    <div className="grid grid-cols-2 gap-3.5 w-full">
-      {/* Row 1: Media Player & Hardware Performance */}
+    <div className="grid grid-cols-2 gap-2.5 w-full text-white">
+      {/* Row 1: Compact Media Player & System Hardware */}
       <MediaCard />
       <PerformanceCard metrics={metrics} />
 
-      {/* Row 2: Weather & Focus Pomodoro Timer */}
-      <WeatherCard />
+      {/* Row 2: Live Clipboard & Focus Timer */}
+      <ClipboardCard clipboard={clipboard} onAction={onClipboardAction} />
       <CalendarTimerCard />
 
-      {/* Row 3: Clipboard Assistant & Dynamic Alerts */}
-      <ClipboardCard clipboard={clipboard} onAction={onClipboardAction} />
-      <QuickAlertsCard />
-
-      {/* Row 4: Ecological Footprint & Work Energy */}
+      {/* Row 3: Ambient Notification Alert */}
       <div className="col-span-2">
-        <EcoFootprintCard metrics={metrics} onOpenInvoice={onOpenEcoInvoice} />
+        <QuickAlertsCard />
       </div>
     </div>
   );

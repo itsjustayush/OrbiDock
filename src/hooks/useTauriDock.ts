@@ -33,6 +33,7 @@ export function useTauriDock() {
     reducedMotion: false,
     reducedTransparency: false,
     showDevOverlay: false,
+    pillBehavior: 'desktop_only',
   });
   const [fps, setFps] = useState(60);
 
@@ -136,14 +137,56 @@ export function useTauriDock() {
       try {
         const { invoke } = await import('@tauri-apps/api/core');
         const data = await invoke<ClipboardData>('get_clipboard_data');
-        setClipboard(data);
-        return data;
+        if (data && data.content) {
+          setClipboard(data);
+          return data;
+        }
       } catch (err) {
         console.error('Failed to get clipboard from Tauri:', err);
       }
     }
+    // Web / WebView fallback reading real system clipboard
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.readText) {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text.trim().length > 0) {
+          let type: 'text' | 'code' | 'url' | 'json' = 'text';
+          const trimmed = text.trim();
+          if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+            type = 'url';
+          } else if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+            type = 'json';
+          } else if (/(\b(function|const|let|var|class|import|export|fn|pub|def)\b|=>|{|})/.test(trimmed)) {
+            type = 'code';
+          }
+          const item: ClipboardData = {
+            content: text,
+            content_type: type,
+            length: text.length,
+            timestamp: Date.now(),
+          };
+          setClipboard(item);
+          return item;
+        }
+      } catch (_) {
+        // Clipboard read permission might be prompt-dependent
+      }
+    }
     return defaultClipboard;
   }, []);
+
+  // Poll clipboard on window focus
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchClipboard();
+    };
+    window.addEventListener('focus', handleFocus);
+    const interval = setInterval(fetchClipboard, 3000);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
+  }, [fetchClipboard]);
 
   const processAiCommand = useCallback(async (command: string, context?: string) => {
     if (isTauri) {

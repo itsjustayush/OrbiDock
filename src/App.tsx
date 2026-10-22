@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTauriDock } from './hooks/useTauriDock';
 import { TopNotchPill } from './components/TopNotchPill';
@@ -15,7 +15,7 @@ import { EcoInvoiceTab } from './components/tabs/EcoInvoiceTab';
 import { SettingsTab } from './components/tabs/SettingsTab';
 import { DevOverlay } from './components/DevOverlay';
 import { X, Sparkles } from 'lucide-react';
-import type { TabType } from './types';
+import type { TabType, CalloutNotification } from './types';
 
 export function App() {
   const {
@@ -34,11 +34,40 @@ export function App() {
   } = useTauriDock();
 
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [currentSong, setCurrentSong] = useState<string>('Midnight City - M83');
   const [isMediaPlaying, setIsMediaPlaying] = useState<boolean>(true);
+  const [notificationCallout, setNotificationCallout] = useState<CalloutNotification | null>(null);
+  const calloutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [shelfFiles, setShelfFiles] = useState<ShelfItem[]>([
     { id: '1', name: 'Q4_Strategy_Brief.pdf', size: '2.4 MB', type: 'application/pdf' },
-    { id: '2', name: 'Competitor_Pricing_Matrix.xlsx', size: '840 KB', type: 'application/excel' },
+    { id: '2', name: 'Pricing_Matrix.xlsx', size: '840 KB', type: 'application/excel' },
   ]);
+
+  // Trigger iOS-style Dynamic Island dropdown notification banner
+  const triggerCallout = (icon: string, title: string, subtitle: string) => {
+    if (calloutTimeoutRef.current) clearTimeout(calloutTimeoutRef.current);
+    setNotificationCallout({
+      id: `${Date.now()}`,
+      icon,
+      title,
+      subtitle,
+      timestamp: Date.now(),
+    });
+
+    calloutTimeoutRef.current = setTimeout(() => {
+      setNotificationCallout(null);
+    }, 3500);
+  };
+
+  // Watch for clipboard changes and trigger iOS callout
+  const lastClipboardContentRef = useRef<string>(clipboard.content);
+  useEffect(() => {
+    if (clipboard.content && clipboard.content !== lastClipboardContentRef.current) {
+      lastClipboardContentRef.current = clipboard.content;
+      triggerCallout('📋', 'Text Captured to Notch', clipboard.content.slice(0, 42));
+    }
+  }, [clipboard.content]);
 
   // Global keyboard shortcuts: Esc to close, Ctrl+Space to toggle
   useEffect(() => {
@@ -71,7 +100,19 @@ export function App() {
       type: f.type || 'file',
     }));
     setShelfFiles((prev) => [...prev, ...newItems]);
+    triggerCallout('📁', 'Files Stashed on Shelf', `${newItems.length} file(s) ready in notch`);
     setActiveTab('shelf');
+  };
+
+  const handleTogglePlay = () => {
+    const next = !isMediaPlaying;
+    setIsMediaPlaying(next);
+    triggerCallout('🎵', next ? 'Now Playing' : 'Playback Paused', currentSong);
+  };
+
+  const handleTrackChange = (newSong: string) => {
+    setCurrentSong(newSong);
+    triggerCallout('🎵', 'Track Changed', newSong);
   };
 
   return (
@@ -80,7 +121,7 @@ export function App() {
       onMouseEnter={() => setInteracting(true)}
       onMouseLeave={() => setInteracting(false)}
     >
-      {/* 1. V-Notch Top Center Dynamic Island Pill */}
+      {/* 1. Dynamic Island Pill / iOS Callout Notification */}
       <AnimatePresence mode="wait">
         {!isOpen && (
           <div className="z-40">
@@ -94,27 +135,30 @@ export function App() {
               onMouseLeave={() => {
                 if (isPreview) changeDockState('hidden');
               }}
+              currentSong={currentSong}
               isMediaPlaying={isMediaPlaying}
-              onTogglePlay={() => setIsMediaPlaying(!isMediaPlaying)}
+              onTogglePlay={handleTogglePlay}
               shelfFileCount={shelfFiles.length}
               onFilesDropped={handleAddFiles}
+              notificationCallout={notificationCallout}
+              pillBehavior={settings.pillBehavior}
             />
           </div>
         )}
       </AnimatePresence>
 
-      {/* 2. Unfolded V-Notch Drawer with Concave Ears */}
+      {/* 2. Unfolded Compact V-Notch Drawer (Reduced by 75% for space optimization) */}
       <AnimatePresence>
         {isOpen && (
           <div className="relative z-50 flex flex-col items-center">
-            {/* Left Concave Ear (Seamless bezel connection) */}
+            {/* Left Concave Ear (Seamless physical bezel blending) */}
             <div
               aria-hidden
               className="absolute top-0 pointer-events-none"
               style={{
-                left: -14 + 0.5,
-                width: 14,
-                height: 14,
+                left: -10 + 0.5,
+                width: 10,
+                height: 10,
                 background:
                   'radial-gradient(circle farthest-side at 0% 100%, transparent calc(100% - 0.75px), #000000 100%)',
               }}
@@ -125,9 +169,9 @@ export function App() {
               aria-hidden
               className="absolute top-0 pointer-events-none"
               style={{
-                right: -14 + 0.5,
-                width: 14,
-                height: 14,
+                right: -10 + 0.5,
+                width: 10,
+                height: 10,
                 background:
                   'radial-gradient(circle farthest-side at 100% 100%, transparent calc(100% - 0.75px), #000000 100%)',
               }}
@@ -138,7 +182,7 @@ export function App() {
               initial={
                 settings.reducedMotion
                   ? { opacity: 0 }
-                  : { opacity: 0, scaleY: 0.88, y: -10 }
+                  : { opacity: 0, scaleY: 0.9, y: -8 }
               }
               animate={{
                 opacity: 1,
@@ -148,38 +192,35 @@ export function App() {
               exit={
                 settings.reducedMotion
                   ? { opacity: 0 }
-                  : { opacity: 0, scaleY: 0.9, y: -10 }
+                  : { opacity: 0, scaleY: 0.92, y: -8 }
               }
               transition={{
                 type: 'spring',
-                stiffness: 420,
-                damping: 32,
+                stiffness: 460,
+                damping: 34,
               }}
-              className={`w-[1040px] max-w-[96vw] max-h-[92vh] v-notch-glass rounded-b-[28px] p-5 shadow-2xl flex flex-col gap-4 relative overflow-hidden ${
+              className={`w-[620px] max-w-[95vw] h-[390px] v-notch-glass rounded-b-[24px] p-3 shadow-2xl flex flex-col gap-2.5 relative overflow-hidden ${
                 settings.reducedTransparency ? 'bg-[#000000]' : ''
               }`}
             >
               {/* V-Notch Optical Highlight Line */}
-              <div className="absolute top-0 inset-x-8 h-[1px] optical-rim pointer-events-none" />
+              <div className="absolute top-0 inset-x-6 h-[1px] optical-rim pointer-events-none" />
 
-              {/* Top Bar: Brand, Command Bar, and Close Button */}
-              <div className="flex items-center justify-between gap-4 pb-2 border-b border-white/5">
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-500 border border-white/20 flex items-center justify-center shadow-md">
-                    <Sparkles className="w-4 h-4 text-white" />
+              {/* Compact Top Bar: Brand, Command Bar, and Close Button */}
+              <div className="flex items-center justify-between gap-2.5 pb-1.5 border-b border-white/5">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-violet-600 to-indigo-500 border border-white/20 flex items-center justify-center shadow-md">
+                    <Sparkles className="w-3 h-3 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5 font-sans">
+                    <h2 className="text-xs font-bold text-white tracking-tight flex items-center gap-1 font-sans">
                       ORBIDOCK
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-violet-500/20 text-violet-300 font-normal">
-                        V-Notch Core
-                      </span>
                     </h2>
                   </div>
                 </div>
 
                 {/* Central Command Bar */}
-                <div className="flex-1 max-w-xl">
+                <div className="flex-1 max-w-sm">
                   <CommandBar
                     onExecute={(cmd) => processAiCommand(cmd, clipboard.content)}
                     onClose={() => changeDockState('hidden')}
@@ -189,15 +230,15 @@ export function App() {
                 {/* Close Button */}
                 <button
                   onClick={() => changeDockState('hidden')}
-                  className="p-2 hover:bg-white/10 text-white/50 hover:text-white rounded-xl transition-colors flex-shrink-0"
+                  className="p-1 hover:bg-white/10 text-white/40 hover:text-white rounded-lg transition-colors flex-shrink-0"
                   title="Collapse (Esc)"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              {/* Main Content Area: Left Navigation Rail + Right Content Panes */}
-              <div className="flex items-start gap-4 flex-1 overflow-hidden min-h-[480px]">
+              {/* Main Content Area: Slim Left Icon Rail + Right Content Panes */}
+              <div className="flex items-start gap-2.5 flex-1 overflow-hidden h-[330px]">
                 <NavigationRail activeTab={activeTab} onSelectTab={setActiveTab} />
 
                 <div className="flex-1 h-full overflow-y-auto pr-1">
@@ -207,9 +248,19 @@ export function App() {
                       clipboard={clipboard}
                       onClipboardAction={handleClipboardAction}
                       onOpenEcoInvoice={() => setActiveTab('ecoinvoice')}
+                      currentSong={currentSong}
+                      isMediaPlaying={isMediaPlaying}
+                      onTogglePlay={handleTogglePlay}
                     />
                   )}
-                  {activeTab === 'media' && <MediaTab />}
+                  {activeTab === 'media' && (
+                    <MediaTab
+                      currentSong={currentSong}
+                      isMediaPlaying={isMediaPlaying}
+                      onTogglePlay={handleTogglePlay}
+                      onTrackChange={handleTrackChange}
+                    />
+                  )}
                   {activeTab === 'shelf' && (
                     <ShelfTab
                       items={shelfFiles}
@@ -253,13 +304,13 @@ export function App() {
         )}
       </AnimatePresence>
 
-      {/* Developer HUD: Frame-rate and state machine debug overlay */}
-      {(settings.showDevOverlay || !isTauri) && (
+      {/* Dev Mode FPS & State Transition Overlay */}
+      {settings.showDevOverlay && (
         <DevOverlay
           fps={fps}
           dockState={dockState}
-          onSetState={changeDockState}
           isTauri={isTauri}
+          onSetState={changeDockState}
         />
       )}
     </div>

@@ -23,45 +23,47 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
   onSelectTab,
 }) => {
   const tabs: Array<{ id: TabType; label: string; icon: React.ReactNode }> = [
-    { id: 'dashboard', label: 'Overview', icon: <LayoutGrid className="w-4 h-4" /> },
-    { id: 'media', label: 'Music & Lyrics', icon: <Music2 className="w-4 h-4" /> },
-    { id: 'shelf', label: 'File Shelf', icon: <UploadCloud className="w-4 h-4" /> },
-    { id: 'performance', label: 'Hardware', icon: <Activity className="w-4 h-4" /> },
-    { id: 'weather', label: 'Weather', icon: <CloudSun className="w-4 h-4" /> },
-    { id: 'calendar', label: 'Focus & Tasks', icon: <CalendarCheck2 className="w-4 h-4" /> },
-    { id: 'clipboard', label: 'Clipboard', icon: <ClipboardList className="w-4 h-4" /> },
-    { id: 'ecoinvoice', label: 'Eco Invoice', icon: <Leaf className="w-4 h-4" /> },
-    { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
+    { id: 'dashboard', label: 'Overview', icon: <LayoutGrid className="w-3.5 h-3.5" /> },
+    { id: 'media', label: 'Music & Lyrics', icon: <Music2 className="w-3.5 h-3.5" /> },
+    { id: 'shelf', label: 'File Shelf', icon: <UploadCloud className="w-3.5 h-3.5" /> },
+    { id: 'performance', label: 'Hardware', icon: <Activity className="w-3.5 h-3.5" /> },
+    { id: 'weather', label: 'Weather', icon: <CloudSun className="w-3.5 h-3.5" /> },
+    { id: 'calendar', label: 'Focus & Tasks', icon: <CalendarCheck2 className="w-3.5 h-3.5" /> },
+    { id: 'clipboard', label: 'Clipboard', icon: <ClipboardList className="w-3.5 h-3.5" /> },
+    { id: 'ecoinvoice', label: 'Eco Invoice', icon: <Leaf className="w-3.5 h-3.5" /> },
+    { id: 'settings', label: 'Settings', icon: <Settings className="w-3.5 h-3.5" /> },
   ];
 
   return (
-    <div className="flex flex-col gap-1 w-44 bg-white/[0.02] border border-white/5 rounded-2xl p-2 flex-shrink-0 select-none">
-      <div className="px-3 py-1.5 mb-1 text-[10px] font-semibold tracking-wider uppercase text-white/30">
-        Navigation
-      </div>
+    <div className="flex flex-col gap-1 w-11 bg-black/40 border border-white/5 rounded-2xl p-1 flex-shrink-0 select-none items-center">
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         return (
           <button
             key={tab.id}
             onClick={() => onSelectTab(tab.id)}
-            className={`relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12px] font-medium transition-all ${
+            title={tab.label}
+            className={`group relative flex items-center justify-center w-9 h-8 rounded-xl text-white/50 transition-all ${
               isActive
                 ? 'text-white'
-                : 'text-white/60 hover:text-white/90 hover:bg-white/[0.04]'
+                : 'hover:text-white hover:bg-white/[0.06]'
             }`}
           >
             {isActive && (
               <motion.div
                 layoutId="active-tab-indicator"
-                className="absolute inset-0 bg-gradient-to-r from-violet-600/30 to-indigo-600/20 border border-violet-500/40 rounded-xl"
+                className="absolute inset-0 bg-violet-600/30 border border-violet-500/40 rounded-xl"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}
-            <span className={`relative z-10 ${isActive ? 'text-violet-400' : ''}`}>
+            <span className={`relative z-10 transition-colors ${isActive ? 'text-violet-300' : ''}`}>
               {tab.icon}
             </span>
-            <span className="relative z-10 truncate">{tab.label}</span>
+
+            {/* Hover Tooltip */}
+            <div className="absolute left-12 px-2 py-1 bg-[#10121a] border border-white/10 rounded-md text-[10px] text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
+              {tab.label}
+            </div>
           </button>
         );
       })}

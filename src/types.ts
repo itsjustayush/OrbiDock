@@ -65,6 +65,14 @@ export interface CalendarEvent {
   type: 'meeting' | 'focus' | 'reminder';
 }
 
+export interface CalloutNotification {
+  id: string;
+  icon: string;
+  title: string;
+  subtitle: string;
+  timestamp: number;
+}
+
 export interface AppSettings {
   dwellMs: number;
   closeDelayMs: number;
@@ -72,4 +80,5 @@ export interface AppSettings {
   reducedMotion: boolean;
   reducedTransparency: boolean;
   showDevOverlay: boolean;
+  pillBehavior: 'desktop_only' | 'always_visible' | 'hover_only';
 }
