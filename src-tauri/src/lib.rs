@@ -16,7 +16,7 @@ use tauri_plugin_global_shortcut::ShortcutState;
 use crate::commands::AppState;
 use crate::cursor_edge::{start_edge_detector, MonitorInfo};
 use crate::metrics::start_metrics_service;
-use crate::state_machine::{DockState, DockStateMachine};
+use crate::state_machine::DockStateMachine;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -82,7 +82,6 @@ pub fn run() {
             let quit_i = MenuItem::with_id(app, "quit", "Quit Orbidock", true, None::<&str>)?;
             let tray_menu = Menu::with_items(app, &[&show_i, &quit_i])?;
 
-            let app_handle = app.handle().clone();
             TrayIconBuilder::new()
                 .menu(&tray_menu)
                 .tooltip("Orbidock - Windows Dynamic Island")
