@@ -2,8 +2,16 @@
 
 @layer base {
   :root {
+    --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --bg-black: #000000;
+    --oled-optimized: true;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
   }
 
   * {
